@@ -1,0 +1,48 @@
+<!--
+  Copyright (C) 2015, Wazuh Inc.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Acronis Cyber Protect Rules
+  ID range: 87800 - 87899
+-->
+
+<group name="acronis,">
+
+  <!-- Base Rule -->
+  <rule id="87800" level="3">
+    <decoded_as>json</decoded_as>
+    <field name="tenant.uuid">\.+</field>
+    <field name="category">^EDR$|^Backup$</field>
+    <description>Acronis Cyber Protect: Event detected.</description>
+    <options>no_full_log</options>
+  </rule>
+
+  <!-- Severity: Warning -->
+  <rule id="87801" level="5">
+    <if_sid>87800</if_sid>
+    <field name="severity">^warning$</field>
+    <description>Acronis: Warning event detected - $(type).</description>
+  </rule>
+
+  <!-- EDR Malicious Detection -->
+  <rule id="87802" level="12">
+    <if_sid>87800</if_sid>
+    <field name="type">^EDRIncidentDetected$</field>
+    <field name="details.isMalicious">^true$</field>
+    <description>Acronis EDR: Malicious threat detected on $(details.resourceName).</description>
+    <mitre>
+      <id>T1204</id>
+    </mitre>
+  </rule>
+
+  <!-- Backup Failed -->
+  <rule id="87803" level="4">
+    <if_sid>87800</if_sid>
+    <field name="type">^BackupCanceled$|^BackupFailed$</field>
+    <description>Acronis: Backup operation canceled or failed.</description>
+  </rule>
+
+</group>
